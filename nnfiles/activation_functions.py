@@ -2,31 +2,36 @@ import numpy as np
 
 class relu:
 
-	def function(self,x):
-		return np.max(0,x)
-		
-	def function_delta(self,x):
-		return x > 0
-		
-class logit:
+	@staticmethod
+	def f(x):
+		return np.maximum(np.zeros(x.shape), x)
 
-	def function(self,x):
+	@staticmethod
+	def f_delta(x):
+		return x > 0
+
+class logit:
+	@staticmethod
+	def f(x):
 		return 1 / (1 + np.exp(-x))
-		
-	def function_delta(self,x):
-		return np.mult(self.funtion(x),1 - self.function(x))
+
+	@staticmethod
+	def f_delta(x):
+		return np.multiply(funtion(x),1 - function(x))
 
 class softPlus:
 
-	def function(self,x):
+	@staticmethod
+	def f(x):
 		return np.log(1 + exp(x))
-		
-	def function_delta(self,x):
+
+	@staticmethod
+	def f_delta(x):
 		return 1 / (1 + np.exp(-x))
 
 
-class softPlusCentered(softMax):
+class softPlusCentered(softPlus):
 
-	def function(self,x):
+	@staticmethod
+	def f(x):
 		return np.log(1 + exp(x)) - np.log(2)
-			
