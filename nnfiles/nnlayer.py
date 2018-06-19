@@ -10,7 +10,7 @@ class baseHiddenLayer:
 		self.activation_func = act_func
 		self.alpha = alpha
 
-		self.W = np.random.randn(n_self, n_prev) / variance_divisor
+		self.W = np.random.randn(n_self, n_prev) / np.sqrt(n_prev)
 		self.b = np.zeros((n_self,1), type = np.float32)
 
 		self.dW = np.zeros(W.shape, type = np.float32)
@@ -23,24 +23,24 @@ class baseHiddenLayer:
 		self.A_prev = A_prev
 		self.Z = np.matmult(A_prev,self.W) + self.b
 
-		return activation_func.function(self.Z)
+		return self.activation_func.f(self.Z)
 
 	def backprop(self,dA_back):
-
-		dZ = np.multiply(dA_back,act_func_delta(self.Z))
+		dZ = np.multiply(dA_back,self.activation_func.f_delta(self.Z))
 		m = dZ.shape[0]
 
-		self.dW = (1/m) * np.matmult(dZ, np.transpose(self.A_prev)
-		self.db = (1/m) * np.multiply(dZ, np.ones(n_nodes,1))
+		self.dW = (1/m) * np.matmult(dZ, np.transpose(self.A_prev))
+		self.db = (1/m) * np.multiply(dZ, np.ones(self.n_nodes,1))
 
 		dA_prev = np.matmult(transpose(self.W), self.dZ)
 
-		return self.dA_prev
+		return dA_prev
 
 	def update(self,alpha):
 		self.W -= alpha * self.dW
 		self.b -= alpha * self.db
 
+		#clear the gradients?
 
 
 class hiddenLayerDropOut(baseHiddenLayer):
