@@ -1,43 +1,46 @@
 import numpy as np
+from abc import ABC, abstractmethod
 
-class relu():
+class baseActFunction(ABC):
 	@classmethod
+	@abstractmethod
 	def f(cls,x):
+		pass
+
+	@classmethod
+	@abstractmethod
+	def f_delta(cls,x):
+		pass
+
+class relu(baseActFunction):
+	def f(x):
 		return np.maximum(np.zeros(x.shape), x)
 
-	@classmethod
-	def f_delta(cls,x):
+	def f_delta(x):
 		return x > 0
 
-class logit():
-	@classmethod
-	def f(cls,x):
+class logit(baseActFunction):
+	def f(x):
 		return 1 / (1 + np.exp(-x))
 
 	@classmethod
 	def f_delta(cls,x):
 		return np.multiply(cls.f(x),1 - cls.f(x))
 
-class softPlus:
-	@classmethod
-	def f(cls,x):
+class softPlus(baseActFunction):
+	def f(x):
 		return np.log(1 + exp(x))
 
-	@classmethod
-	def f_delta(cls,x):
+	def f_delta(x):
 		return 1 / (1 + np.exp(-x))
 
-
 class softPlusCentered(softPlus):
-	@classmethod
-	def f(cls,x):
+	def f(x):
 		return np.log(1 + exp(x)) - np.log(2)
 
-class linear:
-	@classmethod
-	def f(cls,x):
+class linear(baseActFunction):
+	def f(x):
 		return x
 
-	@classmethod
-	def f_delta(cls,x):
+	def f_delta(x):
 		return 1
