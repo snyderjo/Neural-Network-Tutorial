@@ -1,6 +1,6 @@
 import numpy as np
 
-class relu:
+class relu():
 	@classmethod
 	def f(cls,x):
 		return np.maximum(np.zeros(x.shape), x)
@@ -9,7 +9,7 @@ class relu:
 	def f_delta(cls,x):
 		return x > 0
 
-class logit:
+class logit():
 	@classmethod
 	def f(cls,x):
 		return 1 / (1 + np.exp(-x))

@@ -81,6 +81,8 @@ class classMutExcLayer(baseOuputLayerClassifier):
         numerator = np.multiply(act_matrix, np.multiply(exp_a, (sum_exp_a - exp_a)))
         denominator = np.square(sum_exp_a)
 
+        return np.divide(numerator,denominator)
+
 
     def forward(self,a_prev):
         self.a_prev = a_prev
