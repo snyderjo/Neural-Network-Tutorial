@@ -31,11 +31,10 @@ class baseOuputLayerClassifier(ABC):
 
 class classMultOutLayer(baseOuputLayerClassifier):
     ##needs a non-relu layer immediately before to enable negative activations
-    def __init__(self,n_prev,n_class):
+    def __init__(self,n_prev,n_class,alpha = .05):
         self.nClass = nClass
         self.y_hat = None
-        #add an alpha parameter?
-        self.linLayer = nnl.baseHiddenLayer(n_self = n_class,n_prev = n_prev,act_funtion = linear)
+        self.linLayer = nnl.baseHiddenLayer(n_self = n_class,n_prev = n_prev,act_funtion = linear,alpha = alpha)
         self.a_prev = None
 
     def forward(self,a_prev):
@@ -103,10 +102,10 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return np.multiply(dY_hat, dA_prev)
 
 
-
     def predict(self,y):
         return y_hat
 
-
+    def update():
+        pass
 
 
