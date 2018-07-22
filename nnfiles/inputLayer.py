@@ -5,6 +5,7 @@ class inputLayer():
         self.X = X #data should be of the dimentions n_variables x n_obs
         self.miniBatchSize = miniBatchSize
         self.m = np.shape(X)[1]
+        self.n_nodes = np.shape(X)[0]
         self.indexOrder = np.arange(self.m)
         np.random.shuffle(self.indexOrder)
         self.start = 0

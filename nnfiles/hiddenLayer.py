@@ -36,9 +36,9 @@ class baseHiddenLayer:
 
 		return dA_prev
 
-	def update(self,alpha):
-		self.W -= alpha * self.dW
-		self.b -= alpha * self.db
+	def update(self):
+		self.W -= self.alpha * self.dW
+		self.b -= self.alpha * self.db
 
 		#clear the gradients?
 

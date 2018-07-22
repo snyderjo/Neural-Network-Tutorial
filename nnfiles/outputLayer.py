@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from activation_functions import logit
-import nnlayer as nnl
+import hiddenLayer as hL
 
 
 class baseOuputLayerClassifier(ABC):
@@ -34,7 +34,7 @@ class classMultOutLayer(baseOuputLayerClassifier):
     def __init__(self,n_prev,n_class,alpha = .05):
         self.nClass = nClass
         self.y_hat = None
-        self.linLayer = nnl.baseHiddenLayer(n_self = n_class,n_prev = n_prev,act_funtion = linear,alpha = alpha)
+        self.linLayer = hL.baseHiddenLayer(n_self = n_class,n_prev = n_prev,act_funtion = linear,alpha = alpha)
         self.a_prev = None
 
     def forward(self,a_prev):
@@ -105,7 +105,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
     def predict(self,y):
         return y_hat
 
-    def update():
+    def update(self):
         pass
 
 
