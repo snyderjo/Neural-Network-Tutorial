@@ -85,19 +85,19 @@ class classMutExcLayer(baseOuputLayerClassifier):
 
     def forward(self,a_prev):
         self.a_prev = a_prev
-        self.y_hat = cls.softmax(a_prev)
+        self.y_hat = self.softmax(a_prev)
 
     def loss(self,y):
         """
         Assumes that y is a one-hot matrix of dimensions nClass x m
         """
-        losses = -np.multiply(y, np.log(y_hat))
+        losses = -np.multiply(y, np.log(self.y_hat))
 
         return np.mean(losses)
 
     def backprop(self,y):
-        dY_hat = np.divide(y,y_hat) #mostly zeros
-        dA_prev = cls.softmax_delta(self.a_prev)
+        dY_hat = np.divide(y,self.y_hat) #mostly zeros
+        dA_prev = self.softmax_delta(self.a_prev)
 
         return np.multiply(dY_hat, dA_prev)
 

@@ -10,18 +10,18 @@ class baseHiddenLayer:
 		self.activation_func = act_func
 		self.alpha = alpha
 
-		self.W = np.random.randn(n_self, n_prev) / np.sqrt(n_prev)
-		self.b = np.zeros((n_self,1), type = np.float32)
+		self.W = np.random.randn(n_self,n_prev) / np.sqrt(n_prev)
+		self.b = np.zeros((n_self,1))
 
-		self.dW = np.zeros(W.shape, type = np.float32)
-		self.db = np.zeros(b.shape, type = np.float32)
+		self.dW = np.zeros(self.W.shape)
+		self.db = np.zeros(self.b.shape)
 
-		self.A_prev = np.zeros([], type = np.float32)
-		self.Z = np.zeros([],ndmin = 2, type = np.float32)
+		self.A_prev = np.zeros([], dtype = np.float64)
+		self.Z = np.zeros([], dtype = np.float64)
 
 	def forward(self,A_prev):
 		self.A_prev = A_prev
-		self.Z = np.matmult(A_prev,self.W) + self.b
+		self.Z = np.matmul(self.W,A_prev) + self.b
 
 		return self.activation_func.f(self.Z)
 
@@ -29,10 +29,10 @@ class baseHiddenLayer:
 		dZ = np.multiply(dA_back,self.activation_func.f_delta(self.Z))
 		m = dZ.shape[0]
 
-		self.dW = (1/m) * np.matmult(dZ, np.transpose(self.A_prev))
-		self.db = (1/m) * np.multiply(dZ, np.ones(self.n_nodes,1))
+		self.dW = (1/m) * np.matmul(dZ, np.transpose(self.A_prev))
+		self.db = (1/m) * np.multiply(dZ, np.ones([self.n_nodes,1]))
 
-		dA_prev = np.matmult(transpose(self.W), self.dZ)
+		dA_prev = np.matmul(np.transpose(self.W), dZ)
 
 		return dA_prev
 
