@@ -41,6 +41,8 @@ class baseHiddenLayer:
 		self.b -= self.alpha * self.db
 
 		#clear the gradients?
+	def updateAlpha(self,newAlpha):
+		self.alpha = newAlpha
 
 
 class hiddenLayerDropOut(baseHiddenLayer):

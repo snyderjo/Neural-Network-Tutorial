@@ -60,4 +60,22 @@ class fullyConnectedClassifier():
 
         return lossVec
 
+    def updateAlpha(self,alpha):
+        for lyr in self.layers:
+            lyr.updateAlpha(alpha)
+
+    def predict(self,X_new):
+        activations = X_new
+        for lyr in self.layers:
+            activations = lyr.forward(activations)
+
+        y_hat = self.layers[-1].predict()
+
+    def predict(self,X_new,y):
+        activations = X_new
+        for lyr in self.layers:
+            activations = lyr.forward(activations)
+
+        y_hat, loss = self.layers[-1].predict(), self.layers[-1].loss(y)
+
 

@@ -28,6 +28,9 @@ class baseOuputLayerClassifier(ABC):
     def update(self):
         pass
 
+    def updateAlpha(self):
+        pass
+
 
 class classMultOutLayer(baseOuputLayerClassifier):
     ##needs a non-relu layer immediately before to enable negative activations
@@ -56,6 +59,9 @@ class classMultOutLayer(baseOuputLayerClassifier):
 
     def update(self):
         self.linLayer.update()
+
+    def updateAlpha(self,newAlpha):
+        self.linLayer.updateAlapha(newAlpha)
 
 
 class classMutExcLayer(baseOuputLayerClassifier):
@@ -102,7 +108,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return np.multiply(dY_hat, dA_prev)
 
 
-    def predict(self,y):
+    def predict(self):
         return y_hat
 
     def update(self):
