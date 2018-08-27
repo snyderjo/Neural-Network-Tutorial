@@ -22,7 +22,9 @@ class fullyConnectedClassifier():
         if mutExc:
             self.layers.append(oL.classMutExcLayer())
         else:
-            self.layers.append(oL.classMultOutLayer(n_prev = self.layers[-1].n_nodes,n_class = n_output,alpha = alpha))
+            self.layers.append(oL.classMultOutLayer())
+            #change the activation function of the last hidden layer to linear to allow for negative activations
+            self.layers[-2].activation_func = af.linear
 
 
     def iter(self):

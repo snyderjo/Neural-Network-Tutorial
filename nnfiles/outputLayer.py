@@ -25,23 +25,14 @@ class baseOuputLayerClassifier(ABC):
     def predict(self,a_prev):
         pass
 
-    def update(self):
-        pass
-
-    def updateAlpha(self):
-        pass
-
 
 class classMultOutLayer(baseOuputLayerClassifier):
     ##needs a non-relu layer immediately before to enable negative activations
-    def __init__(self,n_prev,n_class,alpha = .05):
-        self.nClass = nClass
+    def __init__(self):
         self.y_hat = None
-        self.linLayer = hL.baseHiddenLayer(n_self = n_class,n_prev = n_prev,act_funtion = linear,alpha = alpha)
         self.a_prev = None
 
     def forward(self,a_prev):
-        self.a_prev = self.linLayer.forward(a_prev)
         self.y_hat = logit.f(a_prev)
 
     def loss(self,y):
@@ -52,16 +43,9 @@ class classMultOutLayer(baseOuputLayerClassifier):
     def backprop(self,y):
         ##update this to reflect the added linear layer
         loss_grad = self.y_hat - y
-        return self.linLayer.backprop(loss_grad)
 
     def predict(self):
         return y_hat
-
-    def update(self):
-        self.linLayer.update()
-
-    def updateAlpha(self,newAlpha):
-        self.linLayer.updateAlapha(newAlpha)
 
 
 class classMutExcLayer(baseOuputLayerClassifier):
@@ -80,6 +64,9 @@ class classMutExcLayer(baseOuputLayerClassifier):
 
     @classmethod
     def softmax_delta(cls,act_matrix):
+        """
+        Not bothering calcating the non-max gradient--These are multipled by 0 later
+        """
         exp_a = np.exp(act_matrix)
         sum_exp_a = np.sum(exp_a,0)
 
@@ -106,12 +93,5 @@ class classMutExcLayer(baseOuputLayerClassifier):
         dA_prev = self.softmax_delta(self.a_prev)
 
         return np.multiply(dY_hat, dA_prev)
-
-
-    def predict(self):
-        return y_hat
-
-    def update(self):
-        pass
 
 
