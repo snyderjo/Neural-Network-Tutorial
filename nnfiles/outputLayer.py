@@ -1,7 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from activation_functions import logit
-import hiddenLayer as hL
 
 
 class baseOuputLayerClassifier(ABC):
@@ -36,13 +35,13 @@ class classMultOutLayer(baseOuputLayerClassifier):
         self.y_hat = logit.f(a_prev)
 
     def loss(self,y):
-        losses = - np.multiply(y, np.log(y_hat)) - np.multiply(1 - y, np.log(1 - y_hat))
+        losses = - np.multiply(y, np.log(self.y_hat)) - np.multiply(1 - y, np.log(1 - self.y_hat))
 
         return np.mean(losses)
 
     def backprop(self,y):
-        ##update this to reflect the added linear layer
         loss_grad = self.y_hat - y
+        return loss_grad
 
     def predict(self):
         return y_hat
@@ -93,5 +92,8 @@ class classMutExcLayer(baseOuputLayerClassifier):
         dA_prev = self.softmax_delta(self.a_prev)
 
         return np.multiply(dY_hat, dA_prev)
+
+    def predict(self):
+        return self.y_hat
 
 

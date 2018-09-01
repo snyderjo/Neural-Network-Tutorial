@@ -34,6 +34,9 @@ class fullyConnectedClassifier():
 
         gradients = self.layers[-1].backprop(yIter) #loss layer gradients
         for lyr in self.layers[-2::-1]: #iterate backwards through hidden layers
+            print(lyr)
+            print(gradients)
+            print(lyr.Z)
             gradients = lyr.backprop(gradients)
 
         #update parameters
@@ -47,6 +50,8 @@ class fullyConnectedClassifier():
         while not self.feeder.atEnd:
             loss += self.iter()
 
+        self.feeder.reset()
+
         return loss
 
 
@@ -57,7 +62,6 @@ class fullyConnectedClassifier():
 
         while count < epochCount:
             lossVec[count] = self.epoch()
-            self.feeder.reset()
             count += 1
 
         return lossVec
