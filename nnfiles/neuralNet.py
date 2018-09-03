@@ -34,9 +34,6 @@ class fullyConnectedClassifier():
 
         gradients = self.layers[-1].backprop(yIter) #loss layer gradients
         for lyr in self.layers[-2::-1]: #iterate backwards through hidden layers
-            print(lyr)
-            print(gradients)
-            print(lyr.Z)
             gradients = lyr.backprop(gradients)
 
         #update parameters
