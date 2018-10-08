@@ -13,6 +13,7 @@ class fullyConnectedClassifier():
         self.n_input = np.shape(X)[0]
         self.n_output = np.shape(Y)[0]
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
+        self.loss_vec = []
 
         self.layers.append(hL.baseHiddenLayer(n_self = hiddenLayerSizes[0], n_prev = self.n_input, act_func = actFuntion, alpha = alpha))
         for lyrSize in hiddenLayerSizes[1:]:
@@ -61,6 +62,8 @@ class fullyConnectedClassifier():
             lossVec[count] = self.epoch()
             count += 1
 
+        self.loss_vec.extend(lossVec)
+
         return lossVec
 
     def updateAlpha(self,alpha):
@@ -68,6 +71,7 @@ class fullyConnectedClassifier():
             lyr.updateAlpha(alpha)
 
     def predict(self,X_new):
+        #very inefficient in terms of memory
         activations = X_new
         for lyr in self.layers:
             activations = lyr.forward(activations)
