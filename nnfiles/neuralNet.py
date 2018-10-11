@@ -15,10 +15,10 @@ class fullyConnectedClassifier():
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
         self.loss_vec = []
 
-        self.layers.append(hL.baseHiddenLayer(n_self = hiddenLayerSizes[0], n_prev = self.n_input, act_func = actFuntion, alpha = alpha))
-        for lyrSize in hiddenLayerSizes[1:]:
-            self.layers.append(hL.baseHiddenLayer(n_self = lyrSize, n_prev = self.layers[-1].n_nodes, act_func = actFuntion, alpha = alpha))
-        self.layers.append(hL.baseHiddenLayer(n_self = self.n_output, n_prev = hiddenLayerSizes[-1], act_func = actFuntion, alpha = alpha))
+        self.layers.append(hL.baseHiddenLayer(n_self = hiddenLayerSizes[0], n_prev = self.n_input, name = "hidden" + str(0), act_func = actFuntion, alpha = alpha))
+        for counter,lyrSize in enumerate(hiddenLayerSizes[1:]):
+            self.layers.append(hL.baseHiddenLayer(n_self = lyrSize, n_prev = self.layers[-1].n_nodes, name = "hidden" + str(counter), act_func = actFuntion, alpha = alpha))
+        self.layers.append(hL.baseHiddenLayer(n_self = self.n_output, n_prev = hiddenLayerSizes[-1], name = "outputActivations", act_func = actFuntion, alpha = alpha))
 
         if mutExc:
             self.layers.append(oL.classMutExcLayer())
@@ -38,7 +38,9 @@ class fullyConnectedClassifier():
             gradients = lyr.backprop(gradients)
 
         #update parameters
-        map(lambda x: x.update(), self.layers) #test this!!!
+        #map(lambda x: x.update(), self.layers) #test this!!!  DOES NOT WORK
+        for lyr in self.layers:
+            lyr.update()
 
         return self.layers[-1].loss(yIter)
 

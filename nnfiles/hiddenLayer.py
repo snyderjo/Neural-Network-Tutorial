@@ -5,7 +5,8 @@ from activation_functions import *
 
 class baseHiddenLayer:
 
-	def __init__(self, n_self, n_prev, act_func = relu, alpha = .05):
+	def __init__(self, n_self, n_prev, name, act_func = relu, alpha = .05):
+		self.name = name
 		self.n_nodes = n_self
 		self.activation_func = act_func
 		self.alpha = alpha
@@ -27,10 +28,10 @@ class baseHiddenLayer:
 
 	def backprop(self,dA_back):
 		dZ = np.multiply(dA_back,self.activation_func.f_delta(self.Z))
-		m = dZ.shape[0]
+		m = dZ.shape[1]
 
 		self.dW = (1/m) * np.matmul(dZ, np.transpose(self.A_prev))
-		self.db = (1/m) * np.multiply(dZ, np.ones([self.n_nodes,1]))
+		self.db = (1/m) * np.matmul(dZ, np.ones([m,1]))
 
 		dA_prev = np.matmul(np.transpose(self.W), dZ)
 
@@ -41,6 +42,7 @@ class baseHiddenLayer:
 		self.b -= self.alpha * self.db
 
 		#clear the gradients?
+
 	def updateAlpha(self,newAlpha):
 		self.alpha = newAlpha
 
