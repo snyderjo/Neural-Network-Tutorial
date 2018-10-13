@@ -6,7 +6,7 @@ import activation_functions as af
 
 
 class fullyConnectedClassifier():
-    def __init__(self, X, Y, hiddenLayerSizes, actFuntion = af.relu, alpha = .05, miniBatchSize = 64, mutExc = True):
+    def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, alpha = .05, miniBatchSize = 64, mutExc = True):
         self.layers = list() #list or dict?
         self.X = X
         self.Y = Y
@@ -21,9 +21,9 @@ class fullyConnectedClassifier():
         self.layers.append(hL.baseHiddenLayer(n_self = self.n_output, n_prev = hiddenLayerSizes[-1], name = "outputActivations", act_func = actFuntion, alpha = alpha))
 
         if mutExc:
-            self.layers.append(oL.classMutExcLayer())
+            self.layers.append(oL.classMutExcLayer(classDict))
         else:
-            self.layers.append(oL.classMultOutLayer())
+            self.layers.append(oL.classMultOutLayer(classDict))
             #change the activation function of the last hidden layer to linear to allow for negative activations
             self.layers[-2].activation_func = af.linear
 
