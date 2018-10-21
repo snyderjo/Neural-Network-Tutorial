@@ -9,7 +9,7 @@ class baseOuputLayerClassifier(ABC):
         pass
 
     @abstractmethod
-    def forward(self,a_prev):
+    def forward(self,A_prev):
         pass
 
     @abstractmethod
@@ -21,11 +21,14 @@ class baseOuputLayerClassifier(ABC):
         pass
 
     @abstractmethod
-    def predict(self,a_prev):
+    def predict(self,A_prev):
         pass
 
     @abstractmethod
     def predictClass(self):
+        pass
+
+    def updateAlpha(self,alpha):
         pass
 
     def update(self):
@@ -37,10 +40,10 @@ class classMultOutLayer(baseOuputLayerClassifier):
     def __init__(self,classDict):
         self.classDict = classDict
         self.y_hat = None
-        self.a_prev = None
+        self.A_prev = None
 
-    def forward(self,a_prev):
-        self.y_hat = logit.f(a_prev)
+    def forward(self,A_prev):
+        self.y_hat = logit.f(A_prev)
 
     def loss(self,y):
         losses = - np.multiply(y, np.log(self.y_hat)) - np.multiply(1 - y, np.log(1 - self.y_hat))
@@ -70,39 +73,42 @@ class classMutExcLayer(baseOuputLayerClassifier):
     def __init__(self,classDict):
         self.classVec = classDict
         self.y_hat = None
-        self.a_prev = None
+        self.A_prev = None
 
     @classmethod
     def softmax(cls,act_matrix):
         max_a = np.amax(act_matrix,axis = 0)
         exp_a = np.exp(act_matrix - max_a)
-        sum_exp_a = np.sum(exp_a,0)
+        sum_exp_a = np.sum(exp_a, axis = 0)
 
         return np.divide(exp_a,sum_exp_a)
 
     @classmethod
     def softmax_delta(cls,act_matrix,y):
-        exp_a = np.exp(act_matrix)
-        sum_exp_a = np.sum(exp_a,0)
+        max_a = np.amax(act_matrix, axis = 0)
+        exp_a = np.exp(act_matrix - max_a)
+        sum_exp_a = np.sum(exp_a, axis = 0)
 
-        #the gradient in the event that the max(y_hat) is y
-        numerator_one = np.multiply(act_matrix, np.multiply(exp_a, (sum_exp_a - exp_a)))
-        denominator_one = np.square(sum_exp_a)
+        #the gradient when the activation is in the softmax numerator
+        numerator_numer = np.multiply(exp_a, (sum_exp_a - exp_a))
+        denominator_numer = np.square(sum_exp_a)
 
-        #the gradient in the event that the max(y_hat) is not y
-        #need to take what the numerator of the y_hat eventually became, i.e. that of y
+        #the gradient in the event activation is not in the softmax numerator
+        #Still need to take what the sofmax numerator of the y_hat eventually became, i.e. that of y
         softmax_numerator = np.max(np.multiply(exp_a, y) ,axis = 0) #exp(a) is guaranteed to be positive, and the non-numerator values will be zero
-        numerator_zero = -np.multiply(softmax_numerator,np.multiply(act_matrix,exp_a))
-        denominator_zero = np.square(sum_exp_a)
+        numerator_denom = -np.multiply(softmax_numerator,exp_a)
+        denominator_denom = np.square(sum_exp_a)
 
-        soft_delta  = np.multiply(y,np.divide(numerator_one,denominator_one)) + np.multiply(1 - y,np.divide(numerator_zero,denominator_zero))
+        soft_delta  = np.multiply(y,np.divide(numerator_numer,denominator_numer)) + np.multiply(1 - y,np.divide(numerator_denom,denominator_denom))
 
         return soft_delta
 
 
-    def forward(self,a_prev):
-        self.a_prev = a_prev
-        self.y_hat = self.softmax(a_prev)
+    def forward(self,A_prev):
+        self.A_prev = A_prev
+        self.y_hat = self.softmax(A_prev)
+        #alter near-zero values of Y_hat to slightly positive to prevent errors
+
 
     def loss(self,y):
         """
@@ -113,9 +119,9 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return np.mean(losses)
 
     def backprop(self,y):
-        dY_hat = np.divide(y,self.y_hat) #mostly zeros
+        dY_hat = -np.divide(y,self.y_hat) #mostly zeros
 
-        dA_prev = self.softmax_delta(self.a_prev,y)
+        dA_prev = self.softmax_delta(self.A_prev,y)
 
         return np.multiply(dY_hat, dA_prev)
 

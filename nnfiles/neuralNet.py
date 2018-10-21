@@ -33,16 +33,19 @@ class fullyConnectedClassifier():
         for lyr in self.layers:
             activations = lyr.forward(activations)
 
+        iterLoss = self.layers[-1].loss(yIter)
+
         gradients = self.layers[-1].backprop(yIter) #loss layer gradients
         for lyr in self.layers[-2::-1]: #iterate backwards through hidden layers
             gradients = lyr.backprop(gradients)
+
 
         #update parameters
         #map(lambda x: x.update(), self.layers) #test this!!!  DOES NOT WORK
         for lyr in self.layers:
             lyr.update()
 
-        return self.layers[-1].loss(yIter)
+        return iterLoss
 
 
     def epoch(self):
