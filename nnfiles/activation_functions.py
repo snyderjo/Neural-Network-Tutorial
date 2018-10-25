@@ -21,22 +21,22 @@ class relu(baseActFunction):
 
 class logit(baseActFunction):
 	def f(x):
-		return 1 / (1 + np.exp(-x))
+		return np.divide(1 , np.add(1 , np.exp(-x)))
 
 	@classmethod
 	def f_delta(cls,x):
-		return np.multiply(cls.f(x),1 - cls.f(x))
+		return np.multiply(cls.f(x),np.subract(1 , cls.f(x)))
 
 class softPlus(baseActFunction):
 	def f(x):
-		return np.log(1 + exp(x))
+		return np.log(np.add(1 , exp(x)))
 
 	def f_delta(x):
-		return 1 / (1 + np.exp(-x))
+		return np.divide(1 , (np.add(1 , np.exp(-x))))
 
 class softPlusCentered(softPlus):
 	def f(x):
-		return np.log(1 + exp(x)) - np.log(2)
+		return np.log(np.add(1 , exp(x))) - np.log(2)
 
 class linear(baseActFunction):
 	def f(x):
