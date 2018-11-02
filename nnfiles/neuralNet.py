@@ -15,16 +15,15 @@ class fullyConnectedClassifier():
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
         self.loss_vec = []
 
-        #insert the number of input and output nodes in the appropriate places
+
+        #insert the input and output nodes in the appropriate places
         hiddenLayerSizes.insert(0,self.n_input)
         hiddenLayerSizes.append(self.n_output)
 
-        self.layers.append(hL.baseHiddenLayer(n_self = hiddenLayerSizes[0], n_prev = self.n_input, name = "hidden" + str(0), act_func = actFuntion, alpha = alpha))
         for counter,lyrSize in enumerate(hiddenLayerSizes[1:]):
-            self.layers.append(hL.baseHiddenLayer(n_self = lyrSize, n_prev = self.layers[-1].n_nodes, name = "hidden" + str(counter), act_func = actFuntion, alpha = alpha))
+            self.layers.append(hL.baseHiddenLayer(n_self = lyrSize, n_prev = hiddenLayerSizes[counter], name = "hidden" + str(counter), act_func = actFuntion, alpha = alpha))
 
         self.layers[-1].name = "outputActivations"
-
 
         if mutExc:
             self.outputL = oL.classMutExcLayer(classDict)
@@ -39,10 +38,12 @@ class fullyConnectedClassifier():
         for lyr in self.layers:
             activations = lyr.forward(activations)
 
-        iterLoss = self.layers[-1].loss(yIter)
+        self.outputL.forward(activations)
 
-        gradients = self.layers[-1].backprop(yIter) #loss layer gradients
-        for lyr in self.layers[-2::-1]: #iterate backwards through hidden layers
+        iterLoss = self.outputL.loss(yIter)
+
+        gradients = self.outputL.backprop(yIter) #loss/output layer gradients
+        for lyr in self.layers[-1::-1]: #iterate backwards through hidden layers
             gradients = lyr.backprop(gradients)
 
         #update parameters
