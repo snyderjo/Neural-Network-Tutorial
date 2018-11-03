@@ -31,10 +31,6 @@ class baseOuputLayerClassifier(ABC):
     def updateAlpha(self,alpha):
         pass
 
-    def update(self):
-        pass
-
-
 class classMultOutLayer(baseOuputLayerClassifier):
     ##needs a non-relu layer immediately before to enable negative activations
     def __init__(self,classDict):
