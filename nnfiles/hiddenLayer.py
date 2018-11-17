@@ -19,7 +19,7 @@ class baseHiddenLayer:
 		self.A_prev = np.zeros([], dtype = np.float128)
 		self.Z = np.zeros([], dtype = np.float128)
 
-		self.__dict__.update(kwargs)
+		self.__dict__.update(kwargs) #for alpha
 
 	def forward(self,A_prev):
 		self.A_prev = A_prev
@@ -50,20 +50,40 @@ class baseHiddenLayer:
 
 
 class hiddenLayerWHyperparameters(baseHiddenLayer):
-	def __init__(self,hyperparams = {"alpha":.05, "p_drop":0.0, "lambd":0, "regN":2, "gradThresh" = np.inf, "gradClip": = np.inf}):
-		self.alpha = hyperparams["alpha"]
-		self.lambd = hyperparams["lambd"]
-		self.regN = hyperparams["regN"]
-		self.p_drop = hyperparams["p_drop"]
-		self.gradThresh = hyperparams["gradThresh"]
+	def __init__(self,n_self, n_prev, name, act_func = relu, **kwargs):
+		self.name = name
+		self.n_nodes = n_self
+		self.activation_func = act_func
+
+		self.W = np.divide(np.random.randn(n_self,n_prev).astype(np.float128) , np.sqrt(n_prev))
+		self.b = np.zeros((n_self,1),dtype = np.float128)
+
+		self.dW = np.zeros(self.W.shape, dtype = np.float128)
+		self.db = np.zeros(self.b.shape, dtype = np.float128)
+
+		self.A_prev = np.zeros([], dtype = np.float128)
+		self.Z = np.zeros([], dtype = np.float128)
+
+		self.alpha =.05
+		self.p_keep = 1.0
+		self.regular = {"lambd":0, "N":2}
+		self.gradThresh = np.inf
+
+		self.__dict__.update(kwargs) #for hyperparameter updates
+
 
 	def reglatrization_summand(self):
 		regLossSummand = np.zeros(*self.W.shape, dtype = np.float128)
-		if self.regN == 1:
-			regLossSummand = np.multiply(self.lambd,np.abs(self.W))
+		m = self.A_prev.shape[1]
 
-		elif self.regN == 2:
-			regLossSummand = np.multiply(self.lambd,np.square(self.W))
+		if self.regular["N"] == 0:
+			pass
+
+		elif self.regular["N"] == 1:
+			regLossSummand = np.divide(np.multiply(self.regular["lambd"],np.abs(self.W)), m)
+
+		elif self.regular["N"] == 2:
+			regLossSummand = np.divide(np.multiply(self.regular["lambd"], np.square(self.W)), 2 * m)
 
 		else:
 			raise ValueError
@@ -73,12 +93,15 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 	def regulatrization_summand_delta(self):
 		dRegLossSummand = np.zeros(*self.W.shape, dtype = np.float128)
 
-		if self.regN == 1:
-			cond = self.W > 0
-			dRegLossSummand = np.sum(1*cond, -1*(np.logical_not(cond)))
+		if self.regular["N"] == 0:
+			pass
 
-		elif self.regN == 2:
-			dRegLossSummand = np.multiply(self.lambd,self.W)
+		elif self.regular["N"] == 1:
+			cond = self.W > 0
+			dRegLossSummand = np.multiply(self.regular["lambd"], np.sum(1*cond, -1*(np.logical_not(cond))))
+
+		elif self.regular["N"] == 2:
+			dRegLossSummand = np.multiply(self.regular["lambd"], self.W)
 
 		else:
 			raise ValueError
@@ -91,9 +114,11 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 		self.W = np.subtract(self.W , np.multiply(self.alpha , np.sum(self.dW, self.regulatrization_summand_delta())))
 		self.b = np.subtract(self.b , np.multiply(self.alpha , self.db))
 
+	def updateHyperParams(**kwargs):
+		self.__dict__.update(kwargs)
 
 	def clipGrads(self):
-		l2_norm = np.sum(np.square(self.dW))
+		l2_norm = np.sqrt(np.sum(np.square(self.dW)))
 		if l2_norm > self.gradThresh:
 			self.dW *= np.divide(self.gradThresh,l2_norm)
 
@@ -103,13 +128,8 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 
 		ActMat = self.activation_func.f(self.Z)
 
-		U = np.divide(np.random.rand(*ActMat.shape) > self.p_drop),self.p_drop)
+		U = np.divide((np.random.rand(*ActMat.shape) < self.p_keep),self.p_keep)
 
 		ActMat *= U
 
 		return ActMat
-
-
-
-
-

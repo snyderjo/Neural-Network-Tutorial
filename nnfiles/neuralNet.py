@@ -102,7 +102,7 @@ class fullyConnectedClassifier():
         return y_hat, loss
 
 class fullyConnectClassHyper(fullyConnectedClassifier):
-    def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, **kwargs):
+    def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":2}, gradThresh = np.inf):
         self.layers = list() #list or dict?
         self.loss_vec = []
 
@@ -113,23 +113,23 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
 
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
 
-        self.__dict__.update(kwargs)
+        self.hyperDict = {"alpha":alpha, "p_keep":p_keep, "regular":regular, "gradThresh":gradThresh}
 
         #insert the number of inputs into the hiddenLayerSizes at the 0th position and number of outputs to the final position
         hiddenLayerSizes.insert(0,self.n_input)
         hiddenLayerSizes.append(self.n_output)
 
         for counter,lyrSize in enumerate(hiddenLayerSizes[1:]):
-            self.layers.append(hL.baseHiddenLayer(n_self = lyrSize, n_prev = hiddenLayerSizes[counter], name = "hidden" + str(counter), act_func = actFuntion, kwargs))
-
-
+            self.layers.append(hL.hiddenLayerWHyperparameters(n_self = lyrSize, n_prev = hiddenLayerSizes[counter], name = "hidden" + str(counter), act_func = actFuntion, **self.hyperDict))
+        #set output activation layer-specific variables
         self.layers[-1].name = "outputActivations"
+        self.layers[-1].p_keep = 1.0 ##make sure to output values for each category.
 
         if mutExc:
             self.outputL = oL.classMutExcLayer(classDict)
         else:
             self.outputL = oL.classMultOutLayer(classDict)
-            #change the activation function of the last hidden layer to linear to allow for negative activations
+            #change the activation function of the last hidden layer to linear to allow for negative activations for the sigmoid
             self.layers[-1].activation_func = af.linear
 
     def iter(self):
@@ -137,23 +137,52 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         regLoss = 0
 
         for lyr in self.layers:
-            #add regularization loss
+            regLoss += np.sum(lyr.regularization_summand())
             activations = lyr.forward(activations)
 
         self.outputL.forward(activations)
 
-        iterLoss = self.outputL.loss(yIter)
+        #sum the batch loss and the regularization loss
+        iterLoss = self.outputL.loss(yIter) + regLoss
 
         gradients = self.outputL.backprop(yIter) #loss layer gradients
         for lyr in self.layers[-1::-1]: #iterate backwards through hidden layers
             gradients = lyr.backprop(gradients)
 
         #update parameters
-        #map(lambda x: x.update(), self.layers) #test this!!!  DOES NOT WORK
         for lyr in self.layers:
             lyr.update()
 
         return iterLoss
+
+    def predict(self,X_new,y):
+        activations = X_new
+        legLoss = 0
+        for lyr in self.layers:
+            regLoss += np.sum(lyr.regularization_summand())
+            activations = lyr.forward(activations)
+
+        y_hat = self.outputL.predict()
+        loss = self.outputL.loss(y) + regLoss
+
+        return y_hat, loss
+
+    def updateHyperparam(self,**kwargs):
+        hyperParamNameSet = {"alpha","p_keep","gradThresh","regular"}
+        updateSet = set(kwargs.keys())
+        #filter kwargs to those that are valid
+
+        validDict = {key:kwargs[key] for key in updateSet.intersection(hyperParamNameSet)}
+        invalidHyperList = list(updateSet - hyperParamNameSet)
+
+        for lyr in layers:
+            lyr.updateHyperParams(**validDict)
+        if len(invalidHyperList) != 0:
+            print("the following are not valid hyperparameter names\n",invalidHyperList)
+
+        #make sure dropout does not apply to the final layer
+        self.hyperDict.update(validDict)
+        self.layers[-1].p_keep = 1.0
 
 
 
