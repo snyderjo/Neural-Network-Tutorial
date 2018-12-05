@@ -102,7 +102,7 @@ class fullyConnectedClassifier():
         return y_hat, loss
 
 class fullyConnectClassHyper(fullyConnectedClassifier):
-    def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":2}, gradThresh = np.inf):
+    def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":0}, gradClip = np.inf, gradNorm = np.inf):
         self.layers = list() #list or dict?
         self.loss_vec = []
 
@@ -113,7 +113,7 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
 
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
 
-        self.hyperDict = {"alpha":alpha, "p_keep":p_keep, "regular":regular, "gradThresh":gradThresh}
+        self.hyperDict = {"alpha":alpha, "p_keep":p_keep, "regular":regular, "gradClip":gradClip, "gradNorm":gradNorm}
 
         #insert the number of inputs into the hiddenLayerSizes at the 0th position and number of outputs to the final position
         hiddenLayerSizes.insert(0,self.n_input)
@@ -168,7 +168,7 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         return y_hat, loss
 
     def updateHyperparam(self,**kwargs):
-        hyperParamNameSet = {"alpha","p_keep","gradThresh","regular"}
+        hyperParamNameSet = {"alpha","regular","p_keep","gradClip","gradNorm"}
         updateSet = set(kwargs.keys())
         #filter kwargs to those that are valid
 
@@ -179,6 +179,9 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
             lyr.updateHyperParams(**validDict)
         if len(invalidHyperList) != 0:
             print("the following are not valid hyperparameter names\n",invalidHyperList)
+            print("these are the hyperparameters:/n")
+            while len(hyperParamNameSet) > 0:
+                print(hyperParamNameSet.pop())
 
         #make sure dropout does not apply to the final layer
         self.hyperDict.update(validDict)

@@ -66,32 +66,31 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 
 		self.alpha =.05
 		self.p_keep = 1.0
-		self.regular = {"lambd":0, "N":2}
+		self.regular = {"lambd":0, "N":0}
 		self.gradThresh = np.inf
 
 		self.__dict__.update(kwargs) #for hyperparameter updates
 
 
-	def reglatrization_summand(self):
-		regLossSummand = np.zeros(*self.W.shape, dtype = np.float128)
-		m = self.A_prev.shape[1]
+	def regularization_summand(self):
+		regLossSummand = np.zeros(self.W.shape, dtype = np.float128)
 
 		if self.regular["N"] == 0:
 			pass
 
 		elif self.regular["N"] == 1:
-			regLossSummand = np.divide(np.multiply(self.regular["lambd"],np.abs(self.W)), m)
+			regLossSummand = np.multiply(self.regular["lambd"],np.abs(self.W))
 
 		elif self.regular["N"] == 2:
-			regLossSummand = np.divide(np.multiply(self.regular["lambd"], np.square(self.W)), 2 * m)
+			regLossSummand = np.divide(np.multiply(self.regular["lambd"], np.square(self.W)), 2)
 
 		else:
 			raise ValueError
 
 		return regLossSummand
 
-	def regulatrization_summand_delta(self):
-		dRegLossSummand = np.zeros(*self.W.shape, dtype = np.float128)
+	def regularization_summand_delta(self):
+		dRegLossSummand = np.zeros(self.W.shape, dtype = np.float128)
 
 		if self.regular["N"] == 0:
 			pass
@@ -111,16 +110,18 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 	def update(self):
 		self.clipGrads()
 
-		self.W = np.subtract(self.W , np.multiply(self.alpha , np.sum(self.dW, self.regulatrization_summand_delta())))
-		self.b = np.subtract(self.b , np.multiply(self.alpha , self.db))
+		self.W = np.subtract(self.W, np.multiply(self.alpha , np.add(self.dW, self.regularization_summand_delta())))
+		self.b = np.subtract(self.b, np.multiply(self.alpha , self.db))
 
-	def updateHyperParams(**kwargs):
+	def updateHyperParams(self,**kwargs):
 		self.__dict__.update(kwargs)
 
 	def clipGrads(self):
+		self.dW[self.dW > self.gradClip] = self.gradClip
+
 		l2_norm = np.sqrt(np.sum(np.square(self.dW)))
-		if l2_norm > self.gradThresh:
-			self.dW *= np.divide(self.gradThresh,l2_norm)
+		if l2_norm > self.gradNorm:
+			self.dW *= np.divide(self.gradNorm,l2_norm)
 
 	def forward(self,A_prev):
 		self.A_prev = A_prev
