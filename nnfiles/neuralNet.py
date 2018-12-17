@@ -103,7 +103,7 @@ class fullyConnectedClassifier():
 
 class fullyConnectClassHyper(fullyConnectedClassifier):
     def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":0}, gradClip = np.inf, gradNorm = np.inf):
-        self.layers = list() #list or dict?
+        self.layers = list()
         self.loss_vec = []
 
         self.X = X
@@ -156,6 +156,11 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         return iterLoss
 
     def predict(self,X_new,y):
+        #save p_keep values then change p_keep to 1
+        pKeepVal = self.hyperDict["p_keep"]
+
+        self.updateHyperparam(p_keep = 1.0)
+
         activations = X_new
         legLoss = 0
         for lyr in self.layers:
@@ -164,6 +169,10 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
 
         y_hat = self.outputL.predict()
         loss = self.outputL.loss(y) + regLoss
+
+        #return values of p_keep to original values
+        self.updateHyperparam(p_keep = pKeepVal)
+
 
         return y_hat, loss
 
@@ -175,13 +184,14 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         validDict = {key:kwargs[key] for key in updateSet.intersection(hyperParamNameSet)}
         invalidHyperList = list(updateSet - hyperParamNameSet)
 
-        for lyr in layers:
+        for lyr in self.layers:
             lyr.updateHyperParams(**validDict)
         if len(invalidHyperList) != 0:
             print("the following are not valid hyperparameter names\n",invalidHyperList)
-            print("these are the hyperparameters:/n")
+            print("these are the hyperparameters and their values:/n")
             while len(hyperParamNameSet) > 0:
-                print(hyperParamNameSet.pop())
+                hyperName  = hyperParamNameSet.pop()
+                print(hyperName,": ",self.hyperDict[hyperName])
 
         #make sure dropout does not apply to the final layer
         self.hyperDict.update(validDict)
