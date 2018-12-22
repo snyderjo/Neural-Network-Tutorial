@@ -58,7 +58,7 @@ class classMultOutLayer(baseOuputLayerClassifier):
         return loss_grad
 
     def predict(self):
-        return y_hat
+        return self.y_hat
 
     def predictClasses(self,threshold = .5):
         pass
