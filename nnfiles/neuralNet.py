@@ -13,8 +13,8 @@ class fullyConnectedClassifier():
         self.n_input = np.shape(X)[0]
         self.n_output = np.shape(Y)[0]
         self.feeder = iL.inputLayer(X = X,Y = Y,miniBatchSize = miniBatchSize)
-        self.loss_vec = []
-
+        self.train_loss_vec = []
+        self.test_loss_vec = []
 
         #insert the input and output nodes in the appropriate places
         hiddenLayerSizes.insert(0,self.n_input)
@@ -64,32 +64,25 @@ class fullyConnectedClassifier():
         return loss
 
 
-    def fit(self,epochCount = 5000):
-        lossVec = np.zeros(epochCount)
+    def fit(self,epochCount = 5000, X_new=None, y_new=None):
+        trainLossVec = np.zeros(epochCount)
+        testLossVec = np.zeros(epochCount)
 
         count = 0
 
         while count < epochCount:
-            lossVec[count] = self.epoch()
+            trainLossVec[count] = self.epoch()
+            _, testLossVec[count] = self.predict(X_new,y_new)
             count += 1
 
-        self.loss_vec.extend(lossVec)
+        self.train_loss_vec.extend(trainLossVec)
+        self.test_loss_vec.extend(testLossVec)
 
-        return lossVec
+        return trainLossVec
 
     def updateAlpha(self,alpha):
         for lyr in self.layers:
             lyr.updateAlpha(alpha)
-
-    def predict(self,X_new):
-        #very inefficient in terms of memory
-        activations = X_new
-        for lyr in self.layers:
-            activations = lyr.forward(activations)
-
-        self.outputL.forward(activations)
-
-        return self.outputL.predict()
 
     def predict(self,X_new,y):
         activations = X_new
@@ -104,7 +97,8 @@ class fullyConnectedClassifier():
 class fullyConnectClassHyper(fullyConnectedClassifier):
     def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":0}, gradClip = np.inf, gradNorm = np.inf):
         self.layers = list()
-        self.loss_vec = []
+        self.train_loss_vec = []
+        self.test_loss_vec = []
 
         self.X = X
         self.Y = Y
@@ -162,10 +156,12 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         self.updateHyperparam(p_keep = 1.0)
 
         activations = X_new
-        legLoss = 0
+        regLoss = 0
         for lyr in self.layers:
             regLoss += np.sum(lyr.regularization_summand())
             activations = lyr.forward(activations)
+
+        self.outputL.forward(activations)
 
         y_hat = self.outputL.predict()
         loss = self.outputL.loss(y) + regLoss
@@ -187,8 +183,8 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         for lyr in self.layers:
             lyr.updateHyperParams(**validDict)
         if len(invalidHyperList) != 0:
-            print("the following are not valid hyperparameter names\n",invalidHyperList)
-            print("these are the hyperparameters and their values:/n")
+            print("The following are not valid hyperparameter names\n",invalidHyperList)
+            print("These are the hyperparameters and their values:")
             while len(hyperParamNameSet) > 0:
                 hyperName  = hyperParamNameSet.pop()
                 print(hyperName,": ",self.hyperDict[hyperName])
