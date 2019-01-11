@@ -51,7 +51,7 @@ class classMultOutLayer(baseOuputLayerClassifier):
             )
             # - y * log(y_hat) - (1 - y) * log(1 - y_hat)
 
-        return np.mean(losses)
+        return losses.shape[1], np.sum(losses)
 
     def backprop(self,y):
         loss_grad = np.subtract(self.y_hat , y)
@@ -126,7 +126,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
         """
         losses = -np.multiply(y, np.log(self.y_hat))
 
-        return np.mean(losses)
+        return losses.shape[1], np.sum(losses)
 
     def backprop(self,y):
         dY_hat = -np.divide(y,self.y_hat) #mostly zeros

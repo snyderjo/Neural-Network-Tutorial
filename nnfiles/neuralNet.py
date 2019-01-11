@@ -40,28 +40,29 @@ class fullyConnectedClassifier():
 
         self.outputL.forward(activations)
 
-        iterLoss = self.outputL.loss(yIter)
+        count, iterLoss = self.outputL.loss(yIter)
 
         gradients = self.outputL.backprop(yIter) #loss/output layer gradients
         for lyr in self.layers[-1::-1]: #iterate backwards through hidden layers
             gradients = lyr.backprop(gradients)
 
         #update parameters
-        #map(lambda x: x.update(), self.layers) #test this!!!  DOES NOT WORK
         for lyr in self.layers:
             lyr.update()
 
-        return iterLoss
+        return count, iterLoss
 
 
     def epoch(self):
-        loss = 0
+        count, loss = 0, 0
         while not self.feeder.atEnd:
-            loss += self.iter()
+            nwCnt, nwLoss = self.iter()
+            count += nwCnt
+            loss += nwLoss
 
         self.feeder.reset()
 
-        return loss
+        return np.divide(loss, count)
 
 
     def fit(self,epochCount = 5000, X_new=None, y_new=None):
@@ -88,11 +89,12 @@ class fullyConnectedClassifier():
         activations = X_new
         for lyr in self.layers:
             activations = lyr.forward(activations)
+        self.outputL.forward(activations)
 
         y_hat = self.outputL.predict()
-        loss = self.outputL.loss(y)
+        count, loss = self.outputL.loss(y)
 
-        return y_hat, loss
+        return y_hat, np.divide(loss,count)
 
 class fullyConnectClassHyper(fullyConnectedClassifier):
     def __init__(self, X, Y, classDict,hiddenLayerSizes, actFuntion = af.relu, miniBatchSize = 64, mutExc = True, alpha =.05, p_keep = 1.0, regular = {"lambd":0, "N":0}, gradClip = np.inf, gradNorm = np.inf):
@@ -137,7 +139,8 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         self.outputL.forward(activations)
 
         #sum the batch loss and the regularization loss
-        iterLoss = self.outputL.loss(yIter) + regLoss
+        count, iterLoss =  self.outputL.loss(yIter)
+        iterLoss += regLoss
 
         gradients = self.outputL.backprop(yIter) #loss layer gradients
         for lyr in self.layers[-1::-1]: #iterate backwards through hidden layers
@@ -147,7 +150,7 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         for lyr in self.layers:
             lyr.update()
 
-        return iterLoss
+        return count, iterLoss
 
     def predict(self,X_new,y):
         #save p_keep values then change p_keep to 1
@@ -160,17 +163,17 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
         for lyr in self.layers:
             regLoss += np.sum(lyr.regularization_summand())
             activations = lyr.forward(activations)
-
         self.outputL.forward(activations)
 
         y_hat = self.outputL.predict()
-        loss = self.outputL.loss(y) + regLoss
+        count, loss = self.outputL.loss(y)
+        loss += regLoss
 
         #return values of p_keep to original values
         self.updateHyperparam(p_keep = pKeepVal)
 
 
-        return y_hat, loss
+        return y_hat, np.divide(loss, count)
 
     def updateHyperparam(self,**kwargs):
         hyperParamNameSet = {"alpha","regular","p_keep","gradClip","gradNorm"}
