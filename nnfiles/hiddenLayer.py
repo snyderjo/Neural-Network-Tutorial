@@ -110,8 +110,14 @@ class hiddenLayerWHyperparameters(baseHiddenLayer):
 	def update(self):
 		self.clipGrads()
 
-		self.W = np.subtract(self.W, np.multiply(self.alpha , np.add(self.dW, self.regularization_summand_delta())))
-		self.b = np.subtract(self.b, np.multiply(self.alpha , self.db))
+		dLambdW = self.regularization_summand_delta()
+
+		self.W = np.subtract(self.W,
+			np.multiply(self.alpha
+				, np.add(self.dW, dLambdW)
+				)
+		)
+		self.b = np.subtract(self.b, np.multiply(self.alpha, self.db))
 
 	def updateHyperParams(self,**kwargs):
 		self.__dict__.update(kwargs)

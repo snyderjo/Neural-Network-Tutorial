@@ -117,7 +117,6 @@ class classMutExcLayer(baseOuputLayerClassifier):
     def forward(self,A_prev):
         self.A_prev = A_prev
         self.y_hat = self.softmax(A_prev)
-        #alter near-zero values of Y_hat to slightly positive to prevent errors?
 
 
     def loss(self,y):
@@ -129,7 +128,9 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return losses.shape[1], np.sum(losses)
 
     def backprop(self,y):
-        dY_hat = -np.divide(y,self.y_hat) #mostly zeros
+        #avoid dividing by near-zero y_hat values
+        dY_hat = np.zeros(self.y_hat.shape,dtype = np.float128)
+        dY_hat[y == 1] = np.divide(-1, self.y_hat[y == 1]) #y_hat's should be larger for y == 1
 
         dA_prev = self.softmax_delta(self.A_prev,y)
 
