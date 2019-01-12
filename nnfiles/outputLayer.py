@@ -98,17 +98,15 @@ class classMutExcLayer(baseOuputLayerClassifier):
 
         #the gradient in the event activation is not in the softmax numerator
         #Still need to take what the sofmax numerator of the y_hat eventually became, i.e. that of y
-        softmax_numerator = np.max(np.multiply(exp_a, y) ,axis = 0) #exp(a) is guaranteed to be positive, and the non-numerator values will be zero
+        softmax_numerator = np.amax(np.multiply(exp_a, y) ,axis = 0) #exp(a) is guaranteed to be positive, and the non-numerator values will be zero
         numerator_denom = -np.multiply(softmax_numerator,exp_a)
         denominator_denom = np.square(sum_exp_a)
 
-        soft_delta  = np.add(
-            np.multiply(y,np.divide(numerator_numer,denominator_numer))
-            , np.multiply(
-                np.subtract(1 , y)
-                ,np.divide(numerator_denom,denominator_denom)
-                )
-            )# == y * (numerator_delta)  + (1 - y) * (denominator_delta)
+        soft_delta = np.zeros(act_matrix.shape,dtype = np.float128)
+
+        soft_delta[y == 1] = np.divide(numerator_numer,denominator_numer)[y == 1]
+        soft_delta[y == 0] = np.divide(numerator_denom,denominator_denom)[y == 0]
+        # == y * (numerator_delta)  + (1 - y) * (denominator_delta)
 
 
         return soft_delta
@@ -123,7 +121,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
         """
         Assumes that y is a one-hot matrix of dimensions nClass x m
         """
-        losses = -np.multiply(y, np.log(self.y_hat))
+        losses = -np.multiply(y, np.log(self.y_hat)) - np.multiply(1 - y, np.log(1 - self.y_hat))
 
         return losses.shape[1], np.sum(losses)
 
@@ -131,6 +129,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
         #avoid dividing by near-zero y_hat values
         dY_hat = np.zeros(self.y_hat.shape,dtype = np.float128)
         dY_hat[y == 1] = np.divide(-1, self.y_hat[y == 1]) #y_hat's should be larger for y == 1
+        dY_hat[y == 0] = np.divide(1,1 - self.y_hat[y == 0])
 
         dA_prev = self.softmax_delta(self.A_prev,y)
 
