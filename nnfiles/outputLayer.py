@@ -49,7 +49,7 @@ class classMultOutLayer(baseOuputLayerClassifier):
                 , np.log(np.subtract(1 , self.y_hat))
                 )
             )
-            # - y * log(y_hat) - (1 - y) * log(1 - y_hat)
+            # = - y * log(y_hat) - (1 - y) * log(1 - y_hat)
 
         return losses.shape[1], np.sum(losses)
 
@@ -121,7 +121,7 @@ class classMutExcLayer(baseOuputLayerClassifier):
         """
         Assumes that y is a one-hot matrix of dimensions nClass x m
         """
-        losses = -np.multiply(y, np.log(self.y_hat)) - np.multiply(1 - y, np.log(1 - self.y_hat))
+        losses = -np.multiply(y, np.log(self.y_hat))
 
         return losses.shape[1], np.sum(losses)
 
@@ -129,7 +129,6 @@ class classMutExcLayer(baseOuputLayerClassifier):
         #avoid dividing by near-zero y_hat values
         dY_hat = np.zeros(self.y_hat.shape,dtype = np.float128)
         dY_hat[y == 1] = np.divide(-1, self.y_hat[y == 1]) #y_hat's should be larger for y == 1
-        dY_hat[y == 0] = np.divide(1,1 - self.y_hat[y == 0])
 
         dA_prev = self.softmax_delta(self.A_prev,y)
 
