@@ -87,29 +87,18 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return np.divide(exp_a,sum_exp_a)
 
     @classmethod
-    def softmax_delta(cls,act_matrix,y):
-        max_a = np.amax(act_matrix, axis = 0)
-        exp_a = np.exp(np.subtract(act_matrix , max_a))
-        sum_exp_a = np.sum(exp_a, axis = 0)
+    def softmax_d(cls,actVec):
+        maxA = np.amax(actVec)
+        expA = np.exp(np.subtract(actVec, maxA))
+        sumExpA = np.sum(expA)
 
-        #the gradient when the activation is in the softmax numerator
-        numerator_numer = np.multiply(exp_a, (np.subtract(sum_exp_a , exp_a)))
-        denominator_numer = np.square(sum_exp_a)
+        numer = -np.outer(expA,expA)
 
-        #the gradient in the event activation is not in the softmax numerator
-        #Still need to take what the sofmax numerator of the y_hat eventually became, i.e. that of y
-        softmax_numerator = np.amax(np.multiply(exp_a, y) ,axis = 0) #exp(a) is guaranteed to be positive, and the non-numerator values will be zero
-        numerator_denom = -np.multiply(softmax_numerator,exp_a)
-        denominator_denom = np.square(sum_exp_a)
+        diag_num = np.multiply(expA,np.subtract(sumExpA, expA))
 
-        soft_delta = np.zeros(act_matrix.shape,dtype = np.float128)
+        np.fill_diagonal(numer,diag_num)
 
-        soft_delta[y == 1] = np.divide(numerator_numer,denominator_numer)[y == 1]
-        soft_delta[y == 0] = np.divide(numerator_denom,denominator_denom)[y == 0]
-        # == y * (numerator_delta)  + (1 - y) * (denominator_delta)
-
-
-        return soft_delta
+        return np.divide(numer, np.square(sumExpA))
 
 
     def forward(self,A_prev):
@@ -128,11 +117,22 @@ class classMutExcLayer(baseOuputLayerClassifier):
     def backprop(self,y):
         #avoid dividing by near-zero y_hat values
         dY_hat = np.zeros(self.y_hat.shape,dtype = np.float128)
-        dY_hat[y == 1] = np.divide(-1, self.y_hat[y == 1]) #y_hat's should be larger for y == 1
+        dY_hat[y == 1] = np.divide(-1, self.y_hat[y == 1]) #y_hat's should be larger for y == 1 -- fewer near-zero divisors
 
-        dA_prev = self.softmax_delta(self.A_prev,y)
+        nClass, m = dY_hat.shape
 
-        return np.multiply(dY_hat, dA_prev)
+        #transpose the activation matrix, and apply softmax_d to create a stack of matrices--necessary for np.matmul
+        transpA_prev = self.A_prev.transpose()
+        deltaSoftMats = np.apply_along_axis(self.softmax_d,1,transpA_prev)
+
+        #transpose dYhat and turn it into a stack of matrices of dim (nClass, 1) rather than vectors of dim (nClass,)
+        transpDY_hat = dY_hat.transpose()
+        transpDY_hat_mats = np.apply_along_axis(np.reshape,1,transpDY_hat,(nClass,1))
+
+        #multiply the matrices reshape back to a stack of vectors, and transpose back
+        dA_prevDY_hat = np.matmul(deltaSoftMats,transpDY_hat_mats).reshape(m,nClass).transpose()
+
+        return dA_prevDY_hat
 
     def predict(self):
         return self.y_hat
