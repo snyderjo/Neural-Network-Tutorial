@@ -92,9 +92,9 @@ class classMutExcLayer(baseOuputLayerClassifier):
         expA = np.exp(np.subtract(actVec, maxA))
         sumExpA = np.sum(expA)
 
-        numer = -np.outer(expA,expA)
+        numer = -np.outer(expA,expA) #off-diagonal gradient
 
-        diag_num = np.multiply(expA,np.subtract(sumExpA, expA))
+        diag_num = np.multiply(expA,np.subtract(sumExpA, expA)) #diagonal gradient
 
         np.fill_diagonal(numer,diag_num)
 
