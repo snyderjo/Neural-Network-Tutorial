@@ -130,7 +130,7 @@ class fullyConnectClassHyper(fullyConnectedClassifier):
 
     def iter(self):
         activations, yIter = self.feeder.feed()
-        regLoss = 0
+        regLoss = 0.0
 
         for lyr in self.layers:
             regLoss += np.sum(lyr.regularization_summand())
