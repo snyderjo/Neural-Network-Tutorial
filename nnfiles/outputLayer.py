@@ -2,7 +2,6 @@ import numpy as np
 from abc import ABC, abstractmethod
 from activation_functions import logit
 
-
 class baseOuputLayerClassifier(ABC):
     @abstractmethod
     def __init__(self):
@@ -28,8 +27,32 @@ class baseOuputLayerClassifier(ABC):
     def predictClass(self):
         pass
 
-    def updateAlpha(self,alpha):
+class baseOuputLayerRegresser(ABC):
+    @abstractmethod
+    def __init__(self):
         pass
+
+    @abstractmethod
+    def forward(self,A_prev):
+        pass
+
+    @abstractmethod
+    def loss(self,y):
+        pass
+
+    @abstractmethod
+    def backprop(self,y):
+        pass
+
+    @abstractmethod
+    def predict(self,A_prev):
+        pass
+
+    @abstractmethod
+    def update(self):
+        pass
+
+
 
 class classMultOutLayer(baseOuputLayerClassifier):
     ##needs a non-relu layer immediately before to enable negative activations
@@ -145,4 +168,20 @@ class classMutExcLayer(baseOuputLayerClassifier):
         return zip(max_ind,max_prob_class,max_prob)
 
 
+class regressionOutputLayer(baseOuputLayerRegresser):
+    def __init__(self,n_act):
+        self.y_hat = np.zeros
+        self.W = np.zeros()
+        self.b = np.zeros((1,1))
 
+    def forward(self,A_prev):
+        self.y_hat = A_prev
+
+    def loss(self,y):
+        return np.mean(np.square(np.subtract(self.y_hat, y)))
+
+    def backprop(self,y):
+        return mp.multiply(2,np.subtract(self.y_hat, y))
+
+    def predict(self,A_prev):
+        return A_prev

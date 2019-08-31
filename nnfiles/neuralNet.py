@@ -79,8 +79,6 @@ class fullyConnectedClassifier():
         self.train_loss_vec.extend(trainLossVec)
         self.test_loss_vec.extend(testLossVec)
 
-        return trainLossVec
-
     def updateAlpha(self,alpha):
         for lyr in self.layers:
             lyr.updateAlpha(alpha)
