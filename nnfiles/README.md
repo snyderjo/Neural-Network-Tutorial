@@ -6,6 +6,6 @@ The purpose of this repositpory is two-fold:
 
 ## Questions  
 __1. Why on earth would you write this from scratch, when you could accomplish this using 4 lines of Keras?__  
-_I am creating this from the ground up for the sake of my own erudition.  I have no expectation that this code is either efficient or aesthetically pleasing.  I have no plans make use of this code moving forward.__  
+_I am creating this from the ground up for the sake of my own erudition.  I have no expectation that this code is either efficient or aesthetically pleasing.  I have no plans make use of this code moving forward._  
 
 
