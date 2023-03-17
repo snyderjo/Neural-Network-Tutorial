@@ -65,7 +65,7 @@ class fullyConnectedClassifier():
         return np.divide(loss, count)
 
 
-    def fit(self,epochCount = 5000, X_new=None, y_new=None):
+    def fit(self,epochCount = 500, X_new=None, y_new=None):
         trainLossVec = np.zeros(epochCount)
         testLossVec = np.zeros(epochCount)
 
