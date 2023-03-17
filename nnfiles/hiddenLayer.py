@@ -1,5 +1,5 @@
 import numpy as np
-from activation_functions import *
+from nnfiles.activation_functions import *
 
 
 

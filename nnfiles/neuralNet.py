@@ -1,8 +1,8 @@
 import numpy as np
-import inputLayer as iL
-import hiddenLayer as hL
-import outputLayer as oL
-import activation_functions as af
+import nnfiles.inputLayer as iL
+import nnfiles.hiddenLayer as hL
+import nnfiles.outputLayer as oL
+import nnfiles.activation_functions as af
 
 
 class fullyConnectedClassifier():

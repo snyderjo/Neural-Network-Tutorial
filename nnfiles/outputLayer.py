@@ -1,6 +1,6 @@
 import numpy as np
 from abc import ABC, abstractmethod
-from activation_functions import logit
+from nnfiles.activation_functions import logit
 
 class baseOuputLayerClassifier(ABC):
     @abstractmethod

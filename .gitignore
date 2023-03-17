@@ -7,3 +7,4 @@ nnfiles/__pycache__/
 nnfiles/freeze/
 nnfiles/gradient test.ipynb
 nnfiles/nnlayer unit tests.py
+.env
