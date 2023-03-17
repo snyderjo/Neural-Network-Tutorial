@@ -1,0 +1,9 @@
+nnfiles/test_notebook.ipynb
+.DS_Store
+.ipynb_checkpoints/
+nnfiles/.DS_Store
+nnfiles/.ipynb_checkpoints/
+nnfiles/__pycache__/
+nnfiles/freeze/
+nnfiles/gradient test.ipynb
+nnfiles/nnlayer unit tests.py
