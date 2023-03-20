@@ -1,7 +1,7 @@
 import numpy as np
-import nnfiles.inputLayer as iL
-import nnfiles.hiddenLayer as hL
-import nnfiles.outputLayer as oL
+import nnfiles.inputLayers as iL
+import nnfiles.hiddenLayers as hL
+import nnfiles.outputLayers as oL
 import nnfiles.activation_functions as af
 
 
