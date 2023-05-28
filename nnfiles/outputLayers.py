@@ -181,7 +181,7 @@ class regressionOutputLayer(baseOuputLayerRegresser):
         return np.mean(np.square(np.subtract(self.y_hat, y)))
 
     def backprop(self,y):
-        return mp.multiply(2,np.subtract(self.y_hat, y))
+        return np.multiply(2,np.subtract(self.y_hat, y))
 
     def predict(self,A_prev):
         return A_prev
