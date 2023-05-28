@@ -10,4 +10,4 @@ The [code](https://github.com/snyderjo/Neural-Network-Tutorial) contained repres
 
 This was among my initial projects in python and git.
 
-Several years later, I added the code necessary to make it a module and provided a virtual envitonment (along with a handful of necessary updates).
+Several years later, I added the code necessary to make it a module and provided a virtual environment (along with a handful of necessary updates).
