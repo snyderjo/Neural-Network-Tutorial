@@ -4,7 +4,7 @@ nnfiles/test_notebook.ipynb
 nnfiles/.DS_Store
 nnfiles/.ipynb_checkpoints/
 nnfiles/__pycache__/
-nnfiles/freeze/
 nnfiles/gradient test.ipynb
 nnfiles/nnlayer unit tests.py
 .env
+_site/
