@@ -1,7 +1,7 @@
 ---
 layout: page
 title: "Neural Network (Self-)Tutorial"
-background: "/img/lesions.png"
+background: "/img/MnistExamplesModified.png"
 ---
 
 Back in 2017, I took Andrew Ng's Coursera class in machine learning.  I was inspired to better establish my knowledge of what he covered.
@@ -17,6 +17,7 @@ I created the following modules:
 * `hiddenLayers`
 * `outputLayers`
 * `activation_functions`
+
 These are called in the module
 * `neuralNets`
 
