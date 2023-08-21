@@ -21,7 +21,7 @@ I created the following modules:
 These are called in the module
 * `neuralNets`
 
-All of the above are packaged into `nnfiles`, which is called in `MNIST test.ipynb` to estimate a fully-connected neural network on the [MNIST dataset](https://en.wikipedia.org/wiki/MNIST_database). 
+All of the above are packaged into `nnfiles`, which is called in `MNIST test.ipynb` to estimate a fully-connected neural network on the [MNIST dataset](https://en.wikipedia.org/wiki/MNIST_database).  I was able to achieve a 95% accuracy!
 
 This was among my initial projects in python and git.
 
