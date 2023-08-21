@@ -6,7 +6,7 @@ background: "/img/MnistExamplesModified.png"
 
 Back in 2017, I took Andrew Ng's Coursera class in machine learning.  I was inspired to better establish my knowledge of what he covered.
 
-The [code](https://github.com/snyderjo/Neural-Network-Tutorial) contained represents my success at creating and estimating fully-connected neural network models (however inefficitent).  This firmed up my knowledge of:
+The [code](https://github.com/snyderjo/Neural-Network-Tutorial) contained represents my success at creating and estimating fully-connected neural network models (however inefficient).  This firmed up my knowledge of:
 * python
 * numpy
 * neural networks--the fully connected (a.k.a. dense) variety
