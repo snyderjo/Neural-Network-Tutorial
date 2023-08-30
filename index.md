@@ -23,6 +23,6 @@ These are called in the module
 
 All of the above are packaged into `nnfiles`, which is called in `MNIST test.ipynb` to estimate a fully-connected neural network on the [MNIST dataset](https://en.wikipedia.org/wiki/MNIST_database).  I was able to achieve a 95% accuracy!
 
-This was among my initial projects in python and git.
+This was among my first projects in python and git.
 
 Several years later, I added the code necessary to make each file module and provided a virtual environment (along with a handful of necessary updates).
